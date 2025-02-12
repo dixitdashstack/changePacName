@@ -20,7 +20,7 @@ jobs:
 
       - name: Rename Application ID (Android) and Bundle ID (iOS)
         run: |
-          OLD_APP_ID="com.example.oldid"
+          OLD_APP_ID="com.dix.new"
           NEW_APP_ID="com.example.newid"
 
           # ✅ Change applicationId in Android build.gradle
