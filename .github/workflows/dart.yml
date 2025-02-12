@@ -18,4 +18,10 @@ jobs:
 
     - name: Update applicationId in build.gradle
       run: |
-        sed -i 's/applicationId "com.dix.new"/applicationId "com.example.newid"/' android/app/build.gradle
+        sed -i 's/applicationId "com\.dix\.new"/applicationId "com.example.newid"/' android/app/build.gradle
+
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+
+    - name: Build with Gradle
+      run: ./gradlew build
