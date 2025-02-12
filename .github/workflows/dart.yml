@@ -1,33 +1,43 @@
-name: Update Application ID
+name: Build Flutter APK & iOS IPA with New App ID
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  update-application-id:
+  build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Set up Java
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
-        java-version: '11'
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.27.3
 
-    - name: List root directory contents
-      run: ls -la
+      - name: Rename Application ID (Android) and Bundle ID (iOS)
+        run: |
+          OLD_APP_ID="com.dix.new"
+          NEW_APP_ID="com.example.newid"
 
-    - name: List android directory contents
-      run: ls -la android/
+          # ✅ Change applicationId in Android build.gradle
+          sed -i "s/applicationId \"$OLD_APP_ID\"/applicationId \"$NEW_APP_ID\"/g" android/app/build.gradle
 
-    - name: Update applicationId in build.gradle
-      run: |
-        sed -i 's/applicationId "com.dix.new"/applicationId "com.example.newid"/' android/app/build.gradle
+          # ✅ Change bundle identifier in iOS project.pbxproj
+          sed -i "s/$OLD_APP_ID/$NEW_APP_ID/g" ios/Runner.xcodeproj/project.pbxproj
 
-    - name: Make gradlew executable
-      run: chmod +x android/gradlew
+      - name: Get Dependencies
+        run: flutter pub get
 
-    - name: Build with Gradle
-      run: ./android/gradlew build
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Build iOS (Requires macOS)
+        if: runner.os == 'macOS'
+        run: |
+          cd ios
+          pod install
+          flutter build ios --release
