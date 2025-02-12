@@ -1,4 +1,4 @@
-name: Build Flutter APK & iOS IPA with New App ID
+name: Build Flutter APK & iOS IPA with Renamed App ID
 
 on:
   push:
@@ -16,11 +16,11 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.27.3
+          flutter-version: 3.x # Replace with your Flutter version
 
       - name: Rename Application ID (Android) and Bundle ID (iOS)
         run: |
-          OLD_APP_ID="com.dix.new"
+          OLD_APP_ID="com.example.oldid"
           NEW_APP_ID="com.example.newid"
 
           # ✅ Change applicationId in Android build.gradle
@@ -29,15 +29,29 @@ jobs:
           # ✅ Change bundle identifier in iOS project.pbxproj
           sed -i "s/$OLD_APP_ID/$NEW_APP_ID/g" ios/Runner.xcodeproj/project.pbxproj
 
+      - name: Verify Application ID in Android
+        run: grep 'applicationId "' android/app/build.gradle
+
+      - name: Verify Bundle Identifier in iOS
+        run: grep 'PRODUCT_BUNDLE_IDENTIFIER' ios/Runner.xcodeproj/project.pbxproj
+
       - name: Get Dependencies
         run: flutter pub get
 
-      - name: Build Android APK
-        run: flutter build apk --release
+      - name: Build Android APK & Verify
+        run: |
+          flutter build apk --release
+          unzip -p build/app/outputs/flutter-apk/app-release.apk AndroidManifest.xml | strings | grep package
 
-      - name: Build iOS (Requires macOS)
+      - name: Setup macOS for iOS Build
+        if: runner.os == 'macOS'
+        run: |
+          sudo gem install cocoapods
+
+      - name: Build iOS & Verify Bundle ID
         if: runner.os == 'macOS'
         run: |
           cd ios
           pod install
           flutter build ios --release
+          xcodebuild -showBuildSettings | grep PRODUCT_BUNDLE_IDENTIFIER
