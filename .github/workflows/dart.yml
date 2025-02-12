@@ -17,11 +17,11 @@ jobs:
         java-version: '11'
 
     - name: List directory contents
-      run: ls -la
+      run: ls -la android/
 
     - name: Update applicationId in build.gradle
       run: |
-        sed -i 's/applicationId "com\.dix\.new"/applicationId "com.example.newid"/' android/app/build.gradle
+        sed -i 's/applicationId "com.dix.new"/applicationId "com.example.newid"/' android/app/build.gradle
 
     - name: Make gradlew executable
       run: chmod +x android/gradlew
