@@ -39,8 +39,8 @@ jobs:
           # Check if the file exists
           if [ -f "$FILE_PATH" ]; then
             # Use `sed` to replace color values in the Dart file
-            sed -i '' 's/0xFF00A3E0/0xff007bff/' "$FILE_PATH"
-            sed -i '' 's/0xFF13a1db/0xffdc3545/' "$FILE_PATH"
+            sed -i '' 's/0xFF00A3E0/0xff007bff/g' "$FILE_PATH"
+            sed -i '' 's/0xFF13a1db/0xffdc3545/g' "$FILE_PATH"
           else
             echo "File not found: $FILE_PATH"
             exit 1
