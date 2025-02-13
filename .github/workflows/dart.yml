@@ -43,8 +43,8 @@ jobs:
             cat "$FILE_PATH"
 
             # Use `perl` to replace color values in the Dart file
-            perl -pi -e 's/0xFF00A3E0/0xff007bff/g' "$FILE_PATH"
-            perl -pi -e 's/0xFF13a1db/0xffdc3545/g' "$FILE_PATH"
+            perl -pi -e 's/0xff007bff/g' "$FILE_PATH"
+            perl -pi -e 's/0xffdc3545/g' "$FILE_PATH"
 
             echo "File contents after modification:"
             cat "$FILE_PATH"
