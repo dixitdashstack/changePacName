@@ -29,6 +29,29 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
+          
+
+      - name: Change Colors in YAML (if applicable)
+        run: |
+          # Example for a YAML config file (e.g., colors.yaml)
+          if [[ -f colors.yaml ]]; then  # Check if the file exists
+            yq eval '.primaryColor = "0xff007bff" | .secondaryColor = "0xffdc3545"' colors.yaml > colors.yaml.tmp
+            mv colors.yaml.tmp colors.yaml
+          fi
+
+      - name: Change Colors in Dart Code (AppTheme)
+        run: |
+          PRIMARY_COLOR="0xff007bff"  # Your new primary color (hex)
+          SECONDARY_COLOR="0xffdc3545" # Your new secondary color (hex)
+
+          # Example using `sed` to replace color values in a Dart file.
+          # Adapt the file path (lib/app_theme.dart) and the regexes to match your code.
+          sed -i "s/primary: Color(0xff[0-9a-fA-F]\{6\}),/primary: Color($PRIMARY_COLOR),/g" lib/infrastructure/theme/theme.dart
+          sed -i "s/secondary: Color(0xff[0-9a-fA-F]\{6\}),/secondary: Color($SECONDARY_COLOR),/g" lib/infrastructure/theme/theme.dart
+
+          # Example if you have color properties in a class
+          # sed -i "s/static const Color primary = Color(0xff[0-9a-fA-F]\{6\});/static const Color primary = Color($PRIMARY_COLOR);/g" lib/infrastructure/theme/theme.dart
+          # sed -i "s/static const Color secondary = Color(0xff[0-9a-fA-F]\{6\});/static const Color secondary = Color($SECONDARY_COLOR);/g" lib/infrastructure/theme/theme.dart
 
       - name: Push Changes
         run: |

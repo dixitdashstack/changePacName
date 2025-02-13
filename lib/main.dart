@@ -1,3 +1,4 @@
+import 'package:demo/infrastructure/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -13,6 +14,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      theme: AppTheme().lightTheme(context),
+      darkTheme: AppTheme().darkTheme(context),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
