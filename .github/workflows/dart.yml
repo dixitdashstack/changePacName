@@ -24,9 +24,17 @@ jobs:
         run: flutter pub global activate rename
 
       - name: Rename App ID (Android & iOS)
+        run: flutter pub global run rename setBundleId --value "com.dixVithani.new"
+
+      - name: Verify Renamed Package
+        run: flutter pub global run rename get
+
+      - name: Ensure `gradlew` Exists and Has Permissions
         run: |
-          flutter pub global run rename setBundleId --value "com.dixTest.new"
-      
+          cd android
+          chmod +x gradlew  # Ensure gradlew is executable
+          ls -l gradlew  # Verify the file exists
+
       - name: Build Debug APK (Android)
         run: |
           cd android
