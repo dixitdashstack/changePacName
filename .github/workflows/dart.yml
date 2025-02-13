@@ -30,7 +30,7 @@ jobs:
           git add .
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
 
-      - name: Push Changes  # Fixed push command
+      - name: Push Changes  # Corrected push command
         run: |
           git config --global url."https://${{ secrets.My_git_token }}@github.com/".insteadOf "https://github.com/"
           git push origin HEAD:${{ github.ref }}
