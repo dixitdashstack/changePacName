@@ -38,8 +38,8 @@ jobs:
 
           # Example using `sed` to replace color values in a Dart file.
           # Adapt the file path (lib/infrastructure/theme/theme.dart) and the regexes to match your code.
-          sed -i "s/primary: Color(0xFF00A3E0),/primary: Color($PRIMARY_COLOR),/g" lib/infrastructure/theme/theme.dart
-          sed -i "s/secondary: Color(0xFF13a1db),/secondary: Color($SECONDARY_COLOR),/g" lib/infrastructure/theme/theme.dart
+          sed -i "s/Color(0xFF00A3E0)/Color($PRIMARY_COLOR)/g" lib/infrastructure/theme/theme.dart
+          sed -i "s/Color(0xFF13a1db)/Color($SECONDARY_COLOR)/g" lib/infrastructure/theme/theme.dart
 
       - name: Push Changes
         run: |
