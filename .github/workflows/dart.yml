@@ -20,24 +20,28 @@ jobs:
       - name: Get Flutter Dependencies
         run: flutter pub get
 
-      - name: Install rename package
-        run: flutter pub global activate rename
-
-      - name: Rename App ID (Android & iOS)
-        run: flutter pub global run rename setBundleId --value "com.dixVithani.new"
-
-      - name: Verify Renamed Package
-        run: flutter pub global run rename get
-
-      - name: Ensure `gradlew` Exists and Has Permissions
+      - name: Set Environment Variables
         run: |
-          cd android
-          chmod +x gradlew  # Ensure gradlew is executable
-          ls -l gradlew  # Verify the file exists
+          echo "NEW_APP_ID=com.dix.new" >> $GITHUB_ENV
+          echo "NEW_BUNDLE_ID=com.dix.new" >> $GITHUB_ENV
+
+      - name: Rename Application ID (Android)
+        run: |
+          sed -i '' 's/applicationId "com.old.app"/applicationId "'"$NEW_APP_ID"'"/g' android/app/build.gradle
+
+      - name: Rename Bundle Identifier (iOS)
+        run: |
+          sed -i '' 's/com.old.app/'"$NEW_BUNDLE_ID"'/g' ios/Runner.xcodeproj/project.pbxproj
+
+      - name: Verify Changes
+        run: |
+          grep "applicationId" android/app/build.gradle || echo "Application ID not found"
+          grep -A3 "PRODUCT_BUNDLE_IDENTIFIER" ios/Runner.xcodeproj/project.pbxproj || echo "Bundle ID not found"
 
       - name: Build Debug APK (Android)
         run: |
           cd android
+          chmod +x gradlew  # Ensure gradlew is executable
           ./gradlew assembleDebug
 
       - name: Build iOS App
@@ -45,9 +49,3 @@ jobs:
           cd ios
           pod install
           xcodebuild -workspace Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Debug
-
-      - name: Verify Application ID (Android)
-        run: grep "applicationId" android/app/build.gradle || echo "Application ID not found"
-
-      - name: Verify Bundle Identifier (iOS)
-        run: grep -A3 "PRODUCT_BUNDLE_IDENTIFIER" ios/Runner.xcodeproj/project.pbxproj || echo "Bundle ID not found"
