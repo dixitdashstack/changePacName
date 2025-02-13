@@ -32,7 +32,7 @@ jobs:
 
       - name: Push Changes
         run: |
-          git config --global url."https://${{ secrets.My_git_token }}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${{ secrets.MY_GIT_TOKEN }}@github.com/".insteadOf "https://github.com/"
           git push origin HEAD:refs/heads/main
         shell: /usr/bin/bash -e {0}
         env:
