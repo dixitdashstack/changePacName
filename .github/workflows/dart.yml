@@ -1,64 +1,39 @@
-name: Rename Application ID for Android & iOS
+name: Rename Application ID
 
 on:
-  push:
-    branches:
-      - main
+  # Choose when this action runs.  Examples:
+  # Manually:
+  workflow_dispatch:
+  # On push to a specific branch:
+  # push:
+  #   branches: [main]
 
 jobs:
-  rename_app_id:
-    runs-on: macos-latest  # Required for iOS builds
+  rename_app:
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Install Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.x  # Replace with your Flutter version
+          flutter-version: '3.27.3' # Or your specific version
+          channel: 'stable'
 
-      - name: Get Flutter Dependencies
-        run: flutter pub get
+      - name: Install rename package
+        run: flutter pub global activate rename
 
-      - name: Set Environment Variables
+      - name: Rename Application ID
         run: |
-          echo "NEW_APP_ID=com.dixVTest.new" >> $GITHUB_ENV
-          echo "NEW_BUNDLE_ID=com.dixVTest.new" >> $GITHUB_ENV
+          NEW_APP_ID="com.dash.new" # Your new application ID
+          rename setBundleId --value "$NEW_APP_ID"
+          # Commit the changes
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .  # Add all changed files
+          git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit" # Handle no changes
+          git push origin HEAD:${{ github.ref }} # Push the changes
 
-      - name: Check if `gradlew` Exists
-        run: |
-          ls -la android/
-
-      - name: Restore `gradlew` if Missing
-        run: |
-          cd android
-          if [ ! -f gradlew ]; then
-            flutter clean
-            flutter pub get
-            chmod +x gradlew
-          fi
-
-      - name: Rename Application ID (Android)
-        run: |
-          sed -i '' 's/applicationId "com.old.app"/applicationId "'"$NEW_APP_ID"'"/g' android/app/build.gradle
-
-      - name: Rename Bundle Identifier (iOS)
-        run: |
-          sed -i '' 's/com.old.app/'"$NEW_BUNDLE_ID"'/g' ios/Runner.xcodeproj/project.pbxproj
-
-      - name: Verify Changes
-        run: |
-          grep "applicationId" android/app/build.gradle || echo "Application ID not found"
-          grep -A3 "PRODUCT_BUNDLE_IDENTIFIER" ios/Runner.xcodeproj/project.pbxproj || echo "Bundle ID not found"
-
-      - name: Build Debug APK (Android)
-        run: |
-          cd android
-          chmod +x gradlew  # Ensure gradlew is executable
-          ./gradlew assembleDebug
-
-      - name: Build iOS App
-        run: |
-          cd ios
-          pod install
-          xcodebuild -workspace Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Debug
+      # Optional: Run Flutter build to verify (after rename)
+      # - name: Build Flutter app (optional)
+      #   run: flutter build apk --release # Or other build command
