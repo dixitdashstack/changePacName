@@ -30,24 +30,25 @@ jobs:
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
 
 
+      - name: Set Color Variables
+        run: |
+          PRIMARY_COLOR="0xff007bff"
+          SECONDARY_COLOR="0xffdc3545"
+          echo "PRIMARY_COLOR=$PRIMARY_COLOR" >> $GITHUB_ENV
+          echo "SECONDARY_COLOR=$SECONDARY_COLOR" >> $GITHUB_ENV
+
       - name: Change Colors in Dart Code (AppTheme)
         run: |
-            FILE_PATH="lib/infrastructure/theme/theme.dart"
-            if [ -f "$FILE_PATH" ]; then
-              echo "File found: $FILE_PATH"
-              echo "File contents BEFORE modification:"
-              cat "$FILE_PATH" # Debugging: Print file contents
-            
-              sed -i 's/final Color primary = const Color(0xFF00A3E0);/final Color primary = const Color(0xff007bff);/gI' "$FILE_PATH"
-              sed -i 's/final Color secondary = Color(0xFF13a1db);/final Color secondary = Color(0xffdc3545);/gI' "$FILE_PATH"
-            
-              echo "File contents AFTER modification:"
-              cat "$FILE_PATH" # Debugging: Print file contents
-            
-            else
-              echo "File not found: $FILE_PATH"
-              exit 1
-            fi
+          FILE_PATH="lib/infrastructure/theme/theme.dart"
+          if [ -f "$FILE_PATH" ]; then
+            echo "File found: $FILE_PATH"
+            sed -i "s/final Color primary = const Color(0xFF00A3E0);/final Color primary = const Color(\"${{ env.PRIMARY_COLOR }}\");/gI" "$FILE_PATH"
+            sed -i "s/final Color secondary = Color(0xFF13a1db);/final Color secondary = Color(\"${{ env.SECONDARY_COLOR }}\");/gI" "$FILE_PATH"
+            cat "$FILE_PATH" # Debugging: Print file contents
+          else
+            echo "File not found: $FILE_PATH"
+            exit 1
+          fi
 
       - name: Push Changes
         run: |
