@@ -48,6 +48,12 @@ jobs:
 
             echo "File contents after modification:"
             cat "$FILE_PATH"
+
+            # Configure git and commit changes
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add "$FILE_PATH"
+            git commit -m "Automated: Change colors in Dart code" || echo "No changes to commit"
           else
             echo "File not found: $FILE_PATH"
             exit 1
