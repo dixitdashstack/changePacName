@@ -12,21 +12,21 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Set Application ID for Android
-        run: echo "APP_ID=com.new.android.app" >> $GITHUB_ENV
-
-      - name: Rename Bundle Identifier for iOS
-        run: |
-          sed -i '' 's/com.old.ios.app/com.new.ios.app/g' ios/Runner.xcodeproj/project.pbxproj
-
       - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.x  # Change to your Flutter version
+          flutter-version: 3.x  # Replace with your Flutter version
 
       - name: Get Flutter Dependencies
         run: flutter pub get
 
+      - name: Install rename package
+        run: flutter pub global activate rename
+
+      - name: Rename App ID (Android & iOS)
+        run: |
+          flutter pub global run rename setBundleId --value "com.dixTest.new"
+      
       - name: Build Debug APK (Android)
         run: |
           cd android
