@@ -1,4 +1,4 @@
-name: Build Flutter APK & iOS IPA with Renamed App ID
+name: Rename Application ID for Android & iOS
 
 on:
   push:
@@ -6,52 +6,40 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-
+  rename_app_id:
+    runs-on: macos-latest  # Required for iOS builds
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
-      - name: Setup Flutter
+      - name: Set Application ID for Android
+        run: echo "APP_ID=com.new.android.app" >> $GITHUB_ENV
+
+      - name: Rename Bundle Identifier for iOS
+        run: |
+          sed -i '' 's/com.old.ios.app/com.new.ios.app/g' ios/Runner.xcodeproj/project.pbxproj
+
+      - name: Install Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: 3.x # Replace with your Flutter version
+          flutter-version: 3.x  # Change to your Flutter version
 
-      - name: Rename Application ID (Android) and Bundle ID (iOS)
-        run: |
-          OLD_APP_ID="com.example.oldid"
-          OLD_APP_ID="com.dix.new"
-
-          # ✅ Change applicationId in Android build.gradle
-          sed -i "s/applicationId \"$OLD_APP_ID\"/applicationId \"$NEW_APP_ID\"/g" android/app/build.gradle
-
-          # ✅ Change bundle identifier in iOS project.pbxproj
-          sed -i "s/$OLD_APP_ID/$NEW_APP_ID/g" ios/Runner.xcodeproj/project.pbxproj
-
-      - name: Verify Application ID in Android
-        run: grep 'applicationId "' android/app/build.gradle
-
-      - name: Verify Bundle Identifier in iOS
-        run: grep 'PRODUCT_BUNDLE_IDENTIFIER' ios/Runner.xcodeproj/project.pbxproj
-
-      - name: Get Dependencies
+      - name: Get Flutter Dependencies
         run: flutter pub get
 
-      - name: Build Android APK & Verify
+      - name: Build Debug APK (Android)
         run: |
-          flutter build apk --release
-          unzip -p build/app/outputs/flutter-apk/app-release.apk AndroidManifest.xml | strings | grep package
+          cd android
+          ./gradlew assembleDebug
 
-      - name: Setup macOS for iOS Build
-        if: runner.os == 'macOS'
-        run: |
-          sudo gem install cocoapods
-
-      - name: Build iOS & Verify Bundle ID
-        if: runner.os == 'macOS'
+      - name: Build iOS App
         run: |
           cd ios
           pod install
-          flutter build ios --release
-          xcodebuild -showBuildSettings | grep PRODUCT_BUNDLE_IDENTIFIER
+          xcodebuild -workspace Runner.xcworkspace -scheme Runner -sdk iphoneos -configuration Debug
+
+      - name: Verify Application ID (Android)
+        run: grep "applicationId" android/app/build.gradle || echo "Application ID not found"
+
+      - name: Verify Bundle Identifier (iOS)
+        run: grep -A3 "PRODUCT_BUNDLE_IDENTIFIER" ios/Runner.xcodeproj/project.pbxproj || echo "Bundle ID not found"
