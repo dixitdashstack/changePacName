@@ -30,27 +30,59 @@ jobs:
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
 
 
+
       - name: Set Color Variables
         run: |
-          PRIMARY_COLOR="0xff007bff"
-          SECONDARY_COLOR="0xffdc3545"
-          echo "PRIMARY_COLOR=$PRIMARY_COLOR" >> $GITHUB_ENV
-          echo "SECONDARY_COLOR=$SECONDARY_COLOR" >> $GITHUB_ENV
+            PRIMARY_COLOR="0xff007bff"
+            SECONDARY_COLOR="0xffdc3545"
+            echo "PRIMARY_COLOR=$PRIMARY_COLOR" >> $GITHUB_ENV
+            echo "SECONDARY_COLOR=$SECONDARY_COLOR" >> $GITHUB_ENV
 
-      - name: Change Colors in Dart Code (AppTheme)
-        run: |
-          FILE_PATH="lib/infrastructure/theme/theme.dart"
-          if [ -f "$FILE_PATH" ]; then
-            echo "File found: $FILE_PATH"
-            sed -i "s/final Color primary = const Color(0xFF00A3E0);/final Color primary = const Color(\"${{ env.PRIMARY_COLOR }}\");/gI" "$FILE_PATH"
-            sed -i "s/final Color secondary = Color(0xFF13a1db);/final Color secondary = Color(\"${{ env.SECONDARY_COLOR }}\");/gI" "$FILE_PATH"
-            cat "$FILE_PATH" # Debugging: Print file contents
-          else
-            echo "File not found: $FILE_PATH"
-            exit 1
-          fi
+            - name:
+                Debug: List Files in Repository
+              run: ls -laR  # Lists all files and directories recursively
 
-      - name: Push Changes
-        run: |
-          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/" # Use GITHUB_TOKEN
-          git push origin HEAD:${{ github.ref }} # Use github.ref
+            - name:
+                Debug: Check File Existence
+              run: |
+                FILE_PATH="lib/infrastructure/theme/theme.dart"
+                if [ -f "$FILE_PATH" ]; then
+                  echo "File exists: $FILE_PATH"
+                else
+                  echo "File DOES NOT exist: $FILE_PATH"
+                  exit 1 # Stop the workflow if the file is not found
+                fi
+
+            - name:
+                Debug: File Contents BEFORE Modification
+              run: |
+                FILE_PATH="lib/infrastructure/theme/theme.dart"
+                cat "$FILE_PATH"
+
+            - name: Change Colors in Dart Code (AppTheme)
+              run: |
+                FILE_PATH="lib/infrastructure/theme/theme.dart"
+                sed -i "s/final Color primary = const Color(0xFF00A3E0);/final Color primary = const Color(\"${{ env.PRIMARY_COLOR }}\");/gI" "$FILE_PATH"
+                sed -i "s/final Color secondary = Color(0xFF13a1db);/final Color secondary = Color(\"${{ env.SECONDARY_COLOR }}\");/gI" "$FILE_PATH"
+
+            - name:
+                Debug: File Contents AFTER Modification
+              run: |
+                FILE_PATH="lib/infrastructure/theme/theme.dart"
+                cat "$FILE_PATH"
+
+            - name: Commit and Push Changes (Only after successful color change)
+              if: ${{ always() && steps.change_colors.outcome == 'success' }} # Conditional push
+              run: |
+                git config --global user.name "github-actions[bot]"
+                git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                git add .
+                git commit -m "Automated: Change app theme colors" || echo "No changes to commit"
+                git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+                git push origin HEAD:${{ github.ref }}
+
+
+#      - name: Push Changes
+#        run: |
+#          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/" # Use GITHUB_TOKEN
+#          git push origin HEAD:${{ github.ref }} # Use github.ref
