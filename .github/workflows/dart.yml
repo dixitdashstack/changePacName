@@ -1,13 +1,10 @@
 name: Rename Application ID
 
-on:
-  # Choose when this action runs.  Examples:
-  # Manually:
-  workflow_dispatch:
-  # On push to a specific branch:
-  # push:
-  #   branches: [main]
 
+on:
+  push:
+    branches:
+      - main
 jobs:
   rename_app:
     runs-on: ubuntu-latest
