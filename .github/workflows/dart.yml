@@ -33,13 +33,12 @@ jobs:
 
       - name: Change Colors in Dart Code (AppTheme)
         run: |
-          PRIMARY_COLOR="0xff007bff"  # Your new primary color (hex)
-          SECONDARY_COLOR="0xffdc3545" # Your new secondary color (hex)
 
           # Example using `sed` to replace color values in a Dart file.
           # Adapt the file path (lib/infrastructure/theme/theme.dart) and the regexes to match your code.
-          sed -i "s/Color(0xFF00A3E0)/Color($PRIMARY_COLOR)/g" lib/infrastructure/theme/theme.dart
-          sed -i "s/Color(0xFF13a1db)/Color($SECONDARY_COLOR)/g" lib/infrastructure/theme/theme.dart
+          sed -i '' '7s/0xFF00A3E0/0xff007bff/' lib/infrastructure/theme/theme.dart
+          sed -i '' '8s/0xFF13a1db/0xffdc3545/' lib/infrastructure/theme/theme.dart
+        
 
       - name: Push Changes
         run: |
