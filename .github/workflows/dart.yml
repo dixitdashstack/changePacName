@@ -33,12 +33,22 @@ jobs:
 
       - name: Change Colors in Dart Code (AppTheme)
         run: |
+          # Ensure the file path is correct
+          FILE_PATH="lib/infrastructure/theme/theme.dart"
 
-          # Example using `sed` to replace color values in a Dart file.
-          # Adapt the file path (lib/infrastructure/theme/theme.dart) and the regexes to match your code.
-          sed -i '' '7s/0xFF00A3E0/0xff007bff/' lib/infrastructure/theme/theme.dart
-          sed -i '' '8s/0xFF13a1db/0xffdc3545/' lib/infrastructure/theme/theme.dart
-        
+          # Check if the file exists
+          if [ -f "$FILE_PATH" ]; then
+            # Use `sed` to replace color values in the Dart file
+            sed -i '' 's/0xFF00A3E0/0xff007bff/' "$FILE_PATH"
+            sed -i '' 's/0xFF13a1db/0xffdc3545/' "$FILE_PATH"
+          else
+            echo "File not found: $FILE_PATH"
+            exit 1
+          fi
+        shell: /usr/bin/bash -e {0}
+        env:
+          FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.29.0-x64
+          PUB_CACHE: /home/runner/.pub-cache
 
       - name: Push Changes
         run: |
