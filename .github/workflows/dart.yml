@@ -42,9 +42,9 @@ jobs:
             echo "File contents before modification:"
             cat "$FILE_PATH"
 
-            # Use `sed` to replace color values in the Dart file at specific line numbers
-            sed -i '' '7s/0xFF00A3E0/0xff007bff/' "$FILE_PATH"
-            sed -i '' '8s/0xFF13a1db/0xffdc3545/' "$FILE_PATH"
+            # Use `sed` to replace color values in the Dart file
+            sed -i '' 's/0xFF00A3E0/0xff007bff/g' "$FILE_PATH"
+            sed -i '' 's/0xFF13a1db/0xffdc3545/g' "$FILE_PATH"
 
             echo "File contents after modification:"
             cat "$FILE_PATH"
