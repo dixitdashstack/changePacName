@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
 
-  final primary = const Color(0xFF00A3E0);
-  final secondary = Color(0xFF13a1db);
+  final primary = const Color(0xff007bff);
+  final secondary = Color(0xffdc3545);
 
 
   // region slider colors and value colors
