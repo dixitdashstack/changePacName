@@ -30,7 +30,11 @@ jobs:
           git add .
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
 
-      - name: Push Changes  # Corrected push command
+      - name: Push Changes
         run: |
           git config --global url."https://${{ secrets.My_git_token }}@github.com/".insteadOf "https://github.com/"
-          git push origin HEAD:${{ github.ref }}
+          git push origin HEAD:refs/heads/main
+        shell: /usr/bin/bash -e {0}
+        env:
+          FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.29.0-x64
+          PUB_CACHE: /home/runner/.pub-cache
