@@ -44,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Future<void> getApplicationId() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String appId = packageInfo.packageName;
-    print("Current Application ID: $appId");
+    print("c $appId");
   }
   @override
   Widget build(BuildContext context) {
