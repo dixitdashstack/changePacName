@@ -22,16 +22,16 @@ jobs:
 
       - name: Set Environment Variables
         run: |
-          echo "NEW_APP_ID=com.dix.new" >> $GITHUB_ENV
-          echo "NEW_BUNDLE_ID=com.dix.new" >> $GITHUB_ENV
+          echo "NEW_APP_ID=com.dixTest.new" >> $GITHUB_ENV
+          echo "NEW_BUNDLE_ID=com.dixTest.new" >> $GITHUB_ENV
 
       - name: Rename Application ID (Android)
         run: |
-          sed -i '' 's/applicationId "com.old.app"/applicationId "'"$NEW_APP_ID"'"/g' android/app/build.gradle
+          sed -i '' 's/applicationId "com.dix.new"/applicationId "'"$NEW_APP_ID"'"/g' android/app/build.gradle
 
       - name: Rename Bundle Identifier (iOS)
         run: |
-          sed -i '' 's/com.old.app/'"$NEW_BUNDLE_ID"'/g' ios/Runner.xcodeproj/project.pbxproj
+          sed -i '' 's/com.dix.new/'"$NEW_BUNDLE_ID"'/g' ios/Runner.xcodeproj/project.pbxproj
 
       - name: Verify Changes
         run: |
