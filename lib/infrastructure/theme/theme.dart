@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 
 class AppTheme {
-  // final primary = const Color(0xFF81c784);
-  // final secondary = const Color(0xFF388e3d);
-  // final primary = const Color(0xFF00A3E0);
+
   final primary = const Color(0xFF00A3E0);
   final secondary = Color(0xFF13a1db);
-  // final secondary = Color(0xFF0073ab);
-  // final primary = Colors.indigoAccent;
-  // final secondary = Colors.indigo;
+
 
   // region slider colors and value colors
   Color greenAccent = Colors.greenAccent;
