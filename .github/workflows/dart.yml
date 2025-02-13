@@ -1,6 +1,5 @@
 name: Rename Application ID
 
-
 on:
   push:
     branches:
@@ -29,39 +28,23 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
-          
 
       - name: Change Colors in Dart Code (AppTheme)
         run: |
-          # Ensure the file path is correct
           FILE_PATH="lib/infrastructure/theme/theme.dart"
-
-          # Check if the file exists
           if [ -f "$FILE_PATH" ]; then
             echo "File found: $FILE_PATH"
-            echo "File contents before modification:"
-            cat "$FILE_PATH"
-
-            # Use `sed` to replace color values in the Dart file
-            sed -i '' 's/0xFF00A3E0/0xff007bff/g' "$FILE_PATH"
-            sed -i '' 's/0xFF13a1db/0xffdc3545/g' "$FILE_PATH"
-
-            echo "File contents after modification:"
+            # More robust sed commands (handles different casing/spacing)
+            sed -i 's/final Color primary = Color(0xFF00A3E0);/final Color primary = const Color(0xff007bff);/gI' "$FILE_PATH"  # Case-insensitive
+            sed -i 's/final Color secondary = Color(0xFF13a1db);/final Color secondary = Color(0xffdc3545);/gI' "$FILE_PATH" # Case-insensitive
+            # Verify the changes (optional, but good for debugging)
             cat "$FILE_PATH"
           else
             echo "File not found: $FILE_PATH"
             exit 1
           fi
-        shell: /usr/bin/bash -e {0}
-        env:
-          FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.29.0-x64
-          PUB_CACHE: /home/runner/.pub-cache
 
       - name: Push Changes
         run: |
-          git config --global url."https://${{ secrets.MY_GIT_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git push origin HEAD:refs/heads/main
-        shell: /usr/bin/bash -e {0}
-        env:
-          FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.29.0-x64
-          PUB_CACHE: /home/runner/.pub-cache
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/" # Use GITHUB_TOKEN
+          git push origin HEAD:${{ github.ref }} # Use github.ref
