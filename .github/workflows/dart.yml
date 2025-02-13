@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+
 jobs:
   rename_app:
     runs-on: ubuntu-latest
@@ -14,7 +15,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.3' # Or your specific version
+          flutter-version: '3.x'
           channel: 'stable'
 
       - name: Install rename package
@@ -22,15 +23,14 @@ jobs:
 
       - name: Rename Application ID
         run: |
-          NEW_APP_ID="com.dash.new" # Your new application ID
+          NEW_APP_ID="com.dash.new"
           rename setBundleId --value "$NEW_APP_ID"
-          # Commit the changes
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add .  # Add all changed files
-          git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit" # Handle no changes
-          git push origin HEAD:${{ github.ref }} # Push the changes
+          git add .
+          git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
 
-      # Optional: Run Flutter build to verify (after rename)
-      # - name: Build Flutter app (optional)
-      #   run: flutter build apk --release # Or other build command
+      - name: Push Changes  # Fixed push command
+        run: |
+          git config --global url."https://${{ secrets.My_git_token }}@github.com/".insteadOf "https://github.com/"
+          git push origin HEAD:${{ github.ref }}
