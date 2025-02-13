@@ -22,7 +22,7 @@ jobs:
 
       - name: Rename Application ID
         run: |
-          NEW_APP_ID="com.dix.new"
+          NEW_APP_ID="com.dixTest.new"
           rename setBundleId --value "$NEW_APP_ID"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
