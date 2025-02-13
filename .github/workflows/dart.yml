@@ -42,8 +42,9 @@ jobs:
             echo "File contents before modification:"
             cat "$FILE_PATH"
 
-            # Use `awk` to replace color values in the Dart file at specific line numbers
-            awk 'NR==7{sub(/0xFF00A3E0/, "0xff007bff")} NR==8{sub(/0xFF13a1db/, "0xffdc3545")} 1' "$FILE_PATH" > temp && mv temp "$FILE_PATH"
+            # Use `sed` to replace color values in the Dart file at specific line numbers
+            sed -i '' '7s/0xFF00A3E0/0xff007bff/' "$FILE_PATH"
+            sed -i '' '8s/0xFF13a1db/0xffdc3545/' "$FILE_PATH"
 
             echo "File contents after modification:"
             cat "$FILE_PATH"
