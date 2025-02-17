@@ -20,11 +20,6 @@ jobs:
       - name: Install rename package
         run: flutter pub global activate rename
 
-      - name: Add flutter_native_splash package
-        run: |
-          echo "flutter_native_splash: ^2.0.0" >> pubspec.yaml
-          flutter pub get
-
       - name: Rename Application ID
         run: |
           NEW_APP_ID="com.dixTest.new"
@@ -34,17 +29,30 @@ jobs:
           git add .
           git commit -m "Automated: Rename application ID to $NEW_APP_ID" || echo "No changes to commit"
 
+
+
       - name: Change Colors in Dart Code (AppTheme)
         run: |
+          # Ensure the file path is correct
           FILE_PATH="lib/infrastructure/theme/theme.dart"
+
+          # Check if the file exists
           if [ -f "$FILE_PATH" ]; then
             echo "File found: $FILE_PATH"
             echo "File contents before modification:"
             cat "$FILE_PATH"
-            perl -pi -e 's/final primary = const Color\(0xFF[0-9A-Fa-f]{6}\);/final primary = const Color(0xFF123456);/g' "$FILE_PATH"
-            perl -pi -e 's/final secondary = const Color\(0xFF[0-9A-Fa-f]{6}\);/final secondary = const Color(0xFF654321);/g' "$FILE_PATH"
+
+            # Use `perl` to replace color values in the Dart file
+          
+             perl -pi -e 's/final primary = const Color\(0xFF[0-9A-Fa-f]{6}\);/final primary = const Color(0xFF123456);/g' "$FILE_PATH"
+             perl -pi -e 's/final secondary = const Color\(0xFF[0-9A-Fa-f]{6}\);/final secondary = const Color(0xFF654321);/g' "$FILE_PATH"
+           # perl -pi -e 's/0xff007bff/g' "$FILE_PATH"
+           # perl -pi -e 's/0xffdc3545/g' "$FILE_PATH"
+
             echo "File contents after modification:"
             cat "$FILE_PATH"
+
+            # Configure git and commit changes
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git add "$FILE_PATH"
@@ -62,15 +70,17 @@ jobs:
         run: |
           sed -i 's/color: "#[0-9A-Fa-f]\{6\}"/color: "#000000"/g' pubspec.yaml
           sed -i 's/color_dark: "#[0-9A-Fa-f]\{6\}"/color_dark: "#000000"/g' pubspec.yaml
-          flutter pub get
+
           dart run flutter_native_splash:create
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add pubspec.yaml
           git commit -m "Automated: Change colors in pubspec.yaml" || echo "No changes to commit"
         shell: /usr/bin/bash -e {0}
 
+
       - name: Push Changes
         run: |
-          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-          git push origin HEAD:${{ github.ref }}
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/" # Use GITHUB_TOKEN
+          git push origin HEAD:${{ github.ref }} # Use github.ref
