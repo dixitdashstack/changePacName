@@ -66,6 +66,17 @@ jobs:
           FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.29.0-x64
           PUB_CACHE: /home/runner/.pub-cache
 
+      - name: Change Colors in pubspec.yaml
+  run: |
+    sed -i 's/color: "#[0-9A-Fa-f]\{6\}"/color: "#000000"/g' pubspec.yaml
+    sed -i 's/color_dark: "#[0-9A-Fa-f]\{6\}"/color_dark: "#000000"/g' pubspec.yaml
+
+    git config --global user.name "github-actions[bot]"
+    git config --global user.email "github-actions[bot]@users.noreply.github.com"
+    git add pubspec.yaml
+    git commit -m "Automated: Change colors in pubspec.yaml" || echo "No changes to commit"
+  shell: /usr/bin/bash -e {0}
+
 
       - name: Push Changes
         run: |
