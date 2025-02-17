@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class AppTheme {
 
   // final primary = const Color(0xFF17a0da);
-  // final secondary = const Color(0xFF1380c3);
+  // final secondary = const Color(0xFF654321);
   // final primary = const Color(0xFF17a0da);
   final primary = const Color(0xFF17a0da);
-  final secondary = const Color(0xFF1380c3);
-  // final secondary = const Color(0xFF1380c3);
+  final secondary = const Color(0xFF654321);
+  // final secondary = const Color(0xFF654321);
   // final primary = Colors.indigoAccent;
   // final secondary = Colors.indigo;
 
