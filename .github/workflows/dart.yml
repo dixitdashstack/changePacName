@@ -71,6 +71,8 @@ jobs:
           sed -i 's/color: "#[0-9A-Fa-f]\{6\}"/color: "#000000"/g' pubspec.yaml
           sed -i 's/color_dark: "#[0-9A-Fa-f]\{6\}"/color_dark: "#000000"/g' pubspec.yaml
 
+          dart run flutter_native_splash:create
+
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add pubspec.yaml
