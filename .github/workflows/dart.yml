@@ -43,8 +43,8 @@ jobs:
             cat "$FILE_PATH"
 
             # Use `perl` to replace color values in the Dart file
-            perl -pi -e 's/primary: Colors\.[a-zA-Z]+/primary: const Color(0xFF123456)/g' "$FILE_PATH"
-            perl -pi -e 's/secondary: Colors\.[a-zA-Z]+/secondary: const Color(0xFFgjhfghgh)/g' "$FILE_PATH"
+           perl -pi -e 's/primary: Colors\.[a-zA-Z]+/primary: const Color(0xFF123456)/g' "$FILE_PATH"
+          perl -pi -e 's/secondary: Colors\.[a-zA-Z]+/secondary: const Color(0xFF654321)/g' "$FILE_PATH"
            # perl -pi -e 's/0xff007bff/g' "$FILE_PATH"
            # perl -pi -e 's/0xffdc3545/g' "$FILE_PATH"
 
