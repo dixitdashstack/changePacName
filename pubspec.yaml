@@ -40,6 +40,28 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
 
+  flutter_launcher_icons: ^0.14.3
+
+
+
+flutter_launcher_icons:
+  image_path: "assets/icon_app.png"
+  android: "ic_launcher"
+  ios: true
+  remove_alpha_ios: true
+
+flutter_native_splash:
+  color: "#00A3E0"
+  image: assets/splash_icon.png
+  ios_content_mode: scaleAspectFit
+
+  android_12:
+    image: assets/splash_icon.png
+    color: "#00A3E0"
+
+  android_gravity: clip_horizontal
+
+
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
   # activated in the `analysis_options.yaml` file located at the root of your
@@ -88,3 +110,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  assets:
+    - assets/
+    - assets/icons/

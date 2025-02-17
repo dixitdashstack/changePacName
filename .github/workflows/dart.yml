@@ -31,6 +31,7 @@ jobs:
 
 
 
+
       - name: Change Colors in Dart Code (AppTheme)
         run: |
           # Ensure the file path is correct
@@ -43,8 +44,9 @@ jobs:
             cat "$FILE_PATH"
 
             # Use `perl` to replace color values in the Dart file
-            perl -pi -e 's/0xff007bff/g' "$FILE_PATH"
-            perl -pi -e 's/0xffdc3545/g' "$FILE_PATH"
+             sed -i '' 's/primary: Colors\.[a-zA-Z]\+/primary: const Color(0xFF123456)/g' "$FILE_PATH"
+#            perl -pi -e 's/0xFF00A3E0/0xff007bff/g' "$FILE_PATH"
+#            perl -pi -e 's/0xFF13a1db/0xffdc3545/g' "$FILE_PATH"
 
             echo "File contents after modification:"
             cat "$FILE_PATH"
@@ -62,6 +64,8 @@ jobs:
         env:
           FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.29.0-x64
           PUB_CACHE: /home/runner/.pub-cache
+
+
 
 
       - name: Push Changes
