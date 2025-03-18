@@ -1,4 +1,4 @@
-name: Build IPA
+name: Build IPA and AAB
 
 on:
   push:
@@ -28,3 +28,26 @@ jobs:
       - name: Print IPA Storage Location
         run: |
           echo "IPA file is stored at: $(pwd)/build/ios/ipa/"
+
+  build_aab:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x'
+          channel: 'stable'
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build AAB
+        run: |
+          flutter build appbundle --release
+
+      - name: Print AAB Storage Location
+        run: |
+          echo "AAB file is stored at: $(pwd)/build/app/outputs/bundle/release/"
