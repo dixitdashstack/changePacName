@@ -28,33 +28,13 @@ jobs:
         with:
           flutter-version: '3.27.3'
           channel: 'stable'
+          cache: true
 
       #4 Install Dependencies
       - name: Install Dependencies
         run: flutter pub get
 
-      #5 Ensure Gradlew Exists & Upgrade Gradle
-      - name: Ensure Gradlew Exists & Upgrade Gradle
-        run: |
-          cd android
-          
-          # Check if gradlew exists, if not, regenerate it
-          if [ ! -f "gradlew" ]; then
-            echo "gradlew not found! Regenerating..."
-            flutter clean
-            flutter pub get
-            ./gradlew wrapper || ./gradlew --version
-          fi
-          
-          chmod +x gradlew
-          ./gradlew wrapper --gradle-version 8.4 --distribution-type all
-      
-
-      #6 Increase JVM Memory for Gradle
-      - name: Increase JVM Memory
-        run: echo "org.gradle.jvmargs=-Xmx4096m" >> android/gradle.properties
-
-      #7 Setup Keystore
+      #5 Setup Keystore
       - name: Decode Keystore
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/my-release-key.jks
@@ -64,28 +44,17 @@ jobs:
           echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" > android/key.properties
           echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
           echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
-          echo "storeFile=my-release-key.jks" >> android/key.properties
+          echo "storeFile=keystore.jks" >> android/key.properties
 
-      - name: Verify Keystore Exists
-        run: ls -l android/app/my-release-key.jks
-
-      #8 Clean Build
-      - name: Clean Flutter Build
-        run: flutter clean
-
-      #9 Resolve Dependencies
-      - name: Resolve Dependencies
-        run: flutter pub upgrade --major-versions
-
-      #10 Building APK
+      #6 Building APK
       - name: Build APK
         run: flutter build apk --release
 
-      #11 Building App Bundle (aab)
-      - name: Build App Bundle
+      #7 Building App Bundle (aab)
+      - name: Build appBundle
         run: flutter build appbundle
 
-      #12 Build IPA (iOS Build)
+      #8 Build IPA ( IOS Build )
       - name: Build IPA
         run: flutter build ipa --no-codesign
 
@@ -94,9 +63,9 @@ jobs:
           cd build
           tar -czf ios_build.tar.gz ios
 
-      #13 Upload Artifacts
+      #9 Upload Artifacts (Fixed Version)
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4  # Updated from v3 to v4
         with:
           name: Releases
           path: |
@@ -104,14 +73,14 @@ jobs:
             build/app/outputs/bundle/release/app-release.aab
             build/ios_build.tar.gz
 
-      #14 Extract Version
+      #10 Extract Version
       - name: Extract version from pubspec.yaml
         id: extract_version
         run: |
           version=$(grep '^version: ' pubspec.yaml | cut -d ' ' -f 2 | tr -d '\r')
           echo "VERSION=$version" >> $GITHUB_ENV
 
-      #15 Check if Tag Exists
+      #11 Check if Tag Exists
       - name: Check if Tag Exists
         id: check_tag
         run: |
@@ -120,7 +89,7 @@ jobs:
           else
             echo "TAG_EXISTS=false" >> $GITHUB_ENV
 
-      #16 Modify Tag if it Exists
+      #12 Modify Tag if it Exists
       - name: Modify Tag
         if: env.TAG_EXISTS == 'true'
         id: modify_tag
@@ -128,7 +97,7 @@ jobs:
           new_version="${{ env.VERSION }}-build-${{ github.run_number }}"
           echo "VERSION=$new_version" >> $GITHUB_ENV
 
-      #17 Create Release
+      #13 Create Release
       - name: Create Release
         uses: ncipollo/release-action@v1
         with:
