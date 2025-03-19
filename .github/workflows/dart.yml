@@ -37,9 +37,11 @@ jobs:
       - name: Upgrade Gradle
         run: |
           cd android
+          chmod +x gradlew
           ./gradlew wrapper --gradle-version 8.4 --distribution-type all
-
-      #6 Increase JVM Memory for Gradle
+          
+          
+          #6 Increase JVM Memory for Gradle
       - name: Increase JVM Memory
         run: echo "org.gradle.jvmargs=-Xmx4096m" >> android/gradle.properties
 
