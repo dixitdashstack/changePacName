@@ -37,14 +37,18 @@ jobs:
       - name: Ensure Gradlew Exists & Upgrade Gradle
         run: |
           cd android
+          
+          # Check if gradlew exists, if not, regenerate it
           if [ ! -f "gradlew" ]; then
             echo "gradlew not found! Regenerating..."
             flutter clean
             flutter pub get
-            ./gradlew wrapper
+            ./gradlew wrapper || ./gradlew --version
           fi
+          
           chmod +x gradlew
           ./gradlew wrapper --gradle-version 8.4 --distribution-type all
+      
 
       #6 Increase JVM Memory for Gradle
       - name: Increase JVM Memory
