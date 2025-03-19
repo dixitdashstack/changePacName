@@ -1,58 +1,114 @@
-name: Generate Keystore & Build APK
+name: 4. Generate Android Keystore and Build APK
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      keystore_password:
+        description: 'Keystore password'
+        required: true
+      key_alias:
+        description: 'Key alias'
+        required: true
+      key_password:
+        description: 'Key password'
+        required: true
+      validity_years:
+        description: 'Validity in years'
+        required: true
+        default: '25'
 
 jobs:
-  generate-keystore-and-build:
+  generate-keystore-and-build-apk:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Verify gradlew Exists
-        run: ls -la android
-
-      - name: Set Execute Permission for gradlew
-        run: chmod +x android/gradlew
-
-      - name: Set up Java
+      - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
-      - name: Generate Keystore File
+      - name: Generate keystore
         run: |
-          keytool -genkeypair -v \
-            -keystore android/app/generated-keystore.jks \
-            -keyalg RSA -keysize 2048 -validity 10000 \
-            -alias my-key-alias \
-            -storepass my-keystore-password \
-            -keypass my-key-password \
-            -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, S=Your State, C=Your Country"
+          mkdir -p android/app/keystore
+          keytool -genkey -v \
+            -keystore android/app/keystore/release-key.keystore \
+            -alias ${{ github.event.inputs.key_alias }} \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity ${{ github.event.inputs.validity_years }}0 \
+            -storepass ${{ github.event.inputs.keystore_password }} \
+            -keypass ${{ github.event.inputs.key_password }} \
+            -dname "CN=Your Name, OU=Development, O=Your Company, L=City, S=State, C=US"
 
-      - name: Save Keystore as Artifact
+      - name: Generate key.properties
+        run: |
+          echo "storePassword=${{ github.event.inputs.keystore_password }}" > android/key.properties
+          echo "keyPassword=${{ github.event.inputs.key_password }}" >> android/key.properties
+          echo "keyAlias=${{ github.event.inputs.key_alias }}" >> android/key.properties
+          echo "storeFile=keystore/release-key.keystore" >> android/key.properties
+
+      - name: Calculate SHA1 and SHA256
+        id: calculate_sha
+        run: |
+          SHA1=$(keytool -list -v -keystore android/app/keystore/release-key.keystore -alias ${{ github.event.inputs.key_alias }} -storepass ${{ github.event.inputs.keystore_password }} | grep "SHA1")
+          SHA256=$(keytool -list -v -keystore android/app/keystore/release-key.keystore -alias ${{ github.event.inputs.key_alias }} -storepass ${{ github.event.inputs.keystore_password }} | grep "SHA256")
+          echo "::notice::Please add the following SHA values to your Firebase configuration manually:"
+          echo "$SHA1"
+          echo "$SHA256"
+
+      - name: Base64 encode keystore
+        id: base64_encode
+        run: |
+          KEYSTORE_BASE64=$(base64 -w 0 android/app/keystore/release-key.keystore)
+          echo "KEYSTORE_BASE64=$KEYSTORE_BASE64" >> $GITHUB_ENV
+
+      - name: Output secrets for manual creation
+        run: |
+          echo "::notice::Please create the following repository secrets manually:"
+          echo "::notice::Secret name: KEYSTORE_BASE64"
+          echo "::notice::Secret value: ${{ env.KEYSTORE_BASE64 }}"
+          echo ""
+          echo "::notice::Secret name: KEY_PROPERTIES"
+          echo "::notice::Secret value:"
+          echo "storePassword=${{ github.event.inputs.keystore_password }}"
+          echo "keyPassword=${{ github.event.inputs.key_password }}"
+          echo "keyAlias=${{ github.event.inputs.key_alias }}"
+          echo "storeFile=keystore/release-key.keystore"
+          echo ""
+          echo "::notice::Secret name: KEYSTORE_SHA"
+          echo "::notice::Secret value:"
+          echo "SHA1=${{ env.SHA1 }}"
+          echo "SHA256=${{ env.SHA256 }}"
+
+      - name: Upload keystore as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: generated-keystore
-          path: android/app/generated-keystore.jks
+          name: android-keystore-files
+          path: |
+            android/app/keystore/release-key.keystore
+            android/key.properties
+          retention-days: 1
 
-      - name: Build Release APK
-        env:
-          ANDROID_KEYSTORE_PATH: android/app/generated-keystore.jks
-          ANDROID_KEYSTORE_PASSWORD: my-keystore-password
-          ANDROID_KEY_ALIAS: my-key-alias
-          ANDROID_KEY_PASSWORD: my-key-password
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.16.0' # Change to your required Flutter version
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build APK
         run: |
-          cd android
-          ./gradlew assembleRelease
+          flutter build apk --release
 
-      - name: Upload APK Artifact
+      - name: Upload APK as artifact
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          name: android-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
