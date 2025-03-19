@@ -1,6 +1,9 @@
-name: 4. Generate Android Keystore and Build APK
+name: Generate Android Keystore and Build APK
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       keystore_password:
@@ -51,7 +54,7 @@ jobs:
             -alias ${{ github.event.inputs.key_alias }} \
             -keyalg RSA \
             -keysize 2048 \
-            -validity ${{ github.event.inputs.validity_years }}0 \
+            -validity ${{ github.event.inputs.validity_years }} \
             -storepass ${{ github.event.inputs.keystore_password }} \
             -keypass ${{ github.event.inputs.key_password }} \
             -dname "CN=Your Name, OU=Development, O=Your Company, L=City, S=State, C=US"
