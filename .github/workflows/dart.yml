@@ -1,53 +1,54 @@
-name: Build IPA and AAB
+name: Generate Keystore & Build APK
 
 on:
   push:
     branches:
-      - main
+      - main  # Change if using another branch
 
 jobs:
-  build_ipa:
-    runs-on: macos-latest
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.x'
-          channel: 'stable'
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build IPA
-        run: |
-          flutter build ios --release --no-codesign
-
-      - name: Print IPA Storage Location
-        run: |
-          echo "IPA file is stored at: $(pwd)/build/ios/ipa/"
-
-  build_aab:
+  generate-keystore-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
+      - name: Set up Java
+        uses: actions/setup-java@v3
         with:
-          flutter-version: '3.x'
-          channel: 'stable'
+          distribution: 'zulu'
+          java-version: '17'  # Adjust based on your project needs
 
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build AAB
+      - name: Generate Keystore File
         run: |
-          flutter build appbundle --release
+          keytool -genkeypair -v \
+            -keystore android/app/generated-keystore.jks \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias my-key-alias \
+            -storepass my-keystore-password \
+            -keypass my-key-password \
+            -dname "CN=Your Name, OU=Your Org, O=Your Company, L=Your City, S=Your State, C=Your Country"
 
-      - name: Print AAB Storage Location
+      - name: Save Keystore as Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-keystore
+          path: android/app/generated-keystore.jks
+
+      - name: Setup Gradle Permissions
+        run: chmod +x gradlew
+
+      - name: Build Release APK
+        env:
+          ANDROID_KEYSTORE_PATH: android/app/generated-keystore.jks
+          ANDROID_KEYSTORE_PASSWORD: my-keystore-password
+          ANDROID_KEY_ALIAS: my-key-alias
+          ANDROID_KEY_PASSWORD: my-key-password
         run: |
-          echo "AAB file is stored at: $(pwd)/build/app/outputs/bundle/release/"
+          ./gradlew assembleRelease
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
