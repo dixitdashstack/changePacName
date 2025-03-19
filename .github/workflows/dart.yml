@@ -28,6 +28,7 @@ jobs:
         with:
           flutter-version: '3.22.2'
           channel: 'stable'
+          cache: true
 
       #4 Install Dependencies
       - name: Install Dependencies
